@@ -49,10 +49,12 @@ to quickly create a Cobra application.`,
 		}
 		gaiaPath := "/go/src/github.com/cosmos/gaia/"
 		configPath := home + "/.gaiad/config/"
+		version := "v2.0.0"
+		link := "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json"
 		log.Println("YOUR GAIA-SRC-HOME address: " + home + gaiaPath)
 		GitFetchCommand(home + gaiaPath)
 		GitCheckoutCommand(home + gaiaPath)
-		GitCheckoutVersionCommand(home + gaiaPath)
+		GitCheckoutVersionCommand(home + gaiaPath, version)
 		GitCheckoutCleanFDCommand(home + gaiaPath)
 		GitCheckoutCleanFXCommand(home + gaiaPath)
 		// StopGaia(home)
@@ -63,7 +65,7 @@ to quickly create a Cobra application.`,
 		CheckVersion(home + gaiaPath)
 		GaiaUnsafeResetAll(home)
 		RemoveGenesis(configPath)
-		GetGenesis(configPath)
+		GetGenesis(configPath, link)
 		ChecksumGenesis(configPath)
 		// StartGaia(home)
 	},
@@ -107,8 +109,8 @@ func GitCheckoutCommand(dir string) {
 	log.Printf("Checkout unnecessary files: %q\n", out.String())
 }
 
-func GitCheckoutVersionCommand(dir string) {
-	cmd := exec.Command("git", "checkout", "v2.0.0")
+func GitCheckoutVersionCommand(dir, version string) {
+	cmd := exec.Command("git", "checkout", version)
 	cmd.Dir = dir
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -235,8 +237,8 @@ func RemoveGenesis(dir string) {
 	log.Printf("Remove Genesis: %q\n", out.String())
 }
 
-func GetGenesis(dir string) {
-	cmd := exec.Command("wget", "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json")
+func GetGenesis(dir, link string) {
+	cmd := exec.Command("wget", link)
 	cmd.Dir = dir
 	var out bytes.Buffer
 	cmd.Stdout = &out
