@@ -11,7 +11,6 @@ import (
 func main() {
 	myFigure := figure.NewFigure("updater", "doom", true)
 	myFigure.Print()
-	cmd.Execute()
 
 	var echoTimes int
 
@@ -53,7 +52,7 @@ a count and a string.`,
 	cmdTimes.Flags().IntVarP(&echoTimes, "times", "t", 1, "times to echo the input")
 
 	var rootCmd = &cobra.Command{Use: "go-gaiad-updater"}
-	rootCmd.AddCommand(cmdEcho, cmdPrint)
+	rootCmd.AddCommand(cmdEcho, cmdPrint, cmd.VersionCmd)
 	cmdEcho.AddCommand(cmdTimes)
 	rootCmd.Execute()
 }
