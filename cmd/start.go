@@ -49,7 +49,7 @@ to quickly create a Cobra application.`,
 		}
 		gaiaPath := "/go/src/github.com/cosmos/gaia/"
 		configPath := home + "/.gaiad/config/"
-		fmt.Println("YOUR GAIA-SRC-HOME address: " + home + gaiaPath)
+		log.Println("YOUR GAIA-SRC-HOME address: " + home + gaiaPath)
 		GitFetchCommand(home + gaiaPath)
 		GitCheckoutCommand(home + gaiaPath)
 		GitCheckoutVersionCommand(home + gaiaPath)
