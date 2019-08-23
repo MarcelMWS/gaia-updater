@@ -1,4 +1,4 @@
-# ansible-gaia-upgrade
+# go-gaia-upgrade
 
 ### upgrade with new genesisfile, steps that should be executed automatically 
 ```
