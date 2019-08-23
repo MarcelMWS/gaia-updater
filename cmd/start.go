@@ -49,14 +49,19 @@ to quickly create a Cobra application.`,
 		}
 		gaiaPath := "/go/src/github.com/cosmos/gaia/"
 		configPath := home + "/.gaiad/config/"
-		version := "v2.0.0"
 		link := "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json"
 		log.Println("YOUR GAIA-SRC-HOME address: " + home + gaiaPath)
+		// Version
+		log.Print("Enter your Gaia-Tag version (e.g. v2.0.0): ")
+		var version string
+		fmt.Scanln(&version)
+		log.Println(version)
+		// Install
 		GitFetchCommand(home + gaiaPath)
-		GitCheckoutCommand(home + gaiaPath)
-		GitCheckoutVersionCommand(home + gaiaPath, version)
 		GitCheckoutCleanFDCommand(home + gaiaPath)
 		GitCheckoutCleanFXCommand(home + gaiaPath)
+		GitCheckoutCommand(home + gaiaPath)
+		GitCheckoutVersionCommand(home + gaiaPath, version)
 		// StopGaia(home)
 		GoVersionCheck(home + gaiaPath)
 		CheckGOPATH()
