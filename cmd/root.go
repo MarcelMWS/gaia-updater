@@ -32,7 +32,7 @@ import (
 
 // rootCmd represents the root command
 var rootCmd = &cobra.Command{
-	Use:   "root",
+	Use:   "go-gaiad-updater",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -41,7 +41,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("root called")
+		// fmt.Println("root called")
 	},
 }
 
@@ -53,14 +53,16 @@ func Execute() {
 }
 
 var cfgFile string
+var projectBase string
+var userLicense string
 
 func init() {
 	// rootCmd.AddCommand(rootCmd)
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cobra.yaml)")
-	// rootCmd.PersistentFlags().StringVarP(&projectBase, "projectbase", "b", "", "base project directory eg. github.com/spf13/")
+	rootCmd.PersistentFlags().StringVarP(&projectBase, "projectbase", "b", "", "base project directory eg. github.com/spf13/")
 	rootCmd.PersistentFlags().StringP("author", "a", "YOUR NAME", "Author name for copyright attribution")
-	// rootCmd.PersistentFlags().StringVarP(&userLicense, "license", "l", "", "Name of license for the project (can provide `licensetext` in config)")
+	rootCmd.PersistentFlags().StringVarP(&userLicense, "license", "l", "", "Name of license for the project (can provide `licensetext` in config)")
 	rootCmd.PersistentFlags().Bool("viper", true, "Use Viper for configuration")
 	viper.BindPFlag("author", rootCmd.PersistentFlags().Lookup("author"))
 	viper.BindPFlag("projectbase", rootCmd.PersistentFlags().Lookup("projectbase"))
