@@ -28,7 +28,7 @@ import (
 )
 
 // versionCmd represents the version command
-var versionCmd = &cobra.Command{
+var VersionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -43,7 +43,7 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(VersionCmd)
 
 	// Here you will define your flags and configuration settings.
 
