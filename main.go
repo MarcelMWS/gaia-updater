@@ -45,9 +45,6 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		// fmt.Println("root called")
-	},
 }
 
 func Execute() {
@@ -109,7 +106,6 @@ func main() {
 	myFigure := figure.NewFigure("updater", "doom", true)
 	myFigure.Print()
 
-	var rootCmd = &cobra.Command{Use: "go-gaiad-updater"}
 	rootCmd.AddCommand(
 		cmd.VersionCmd,
 		cmd.StartCmd,
