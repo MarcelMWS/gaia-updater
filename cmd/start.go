@@ -47,16 +47,25 @@ to quickly create a Cobra application.`,
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		home = home + "/go/src/github.com/cosmos/gaia/"
-		fmt.Println("YOUR HOME address: " + home)
-		GitFetchCommand(home)
-		GitCheckoutCommand(home)
-		GitCheckoutVersionCommand(home)
-		GitCheckoutCleanFDCommand(home)
-		GitCheckoutCleanFXCommand(home)
-		GoVersionCheck(home)
-		MakeGoModCache(home)
-		MakeInstall(home)
+		gaiaPath := "/go/src/github.com/cosmos/gaia/"
+		configPath := home + "/.gaiad/config/"
+		fmt.Println("YOUR GAIA-SRC-HOME address: " + home + gaiaPath)
+		GitFetchCommand(home + gaiaPath)
+		GitCheckoutCommand(home + gaiaPath)
+		GitCheckoutVersionCommand(home + gaiaPath)
+		GitCheckoutCleanFDCommand(home + gaiaPath)
+		GitCheckoutCleanFXCommand(home + gaiaPath)
+		// StopGaia(home)
+		GoVersionCheck(home + gaiaPath)
+		CheckGOPATH()
+		MakeGoModCache(home + gaiaPath)
+		MakeInstall(home + gaiaPath)
+		CheckVersion(home + gaiaPath)
+		GaiaUnsafeResetAll(home)
+		RemoveGenesis(configPath)
+		GetGenesis(configPath)
+		ChecksumGenesis(configPath)
+		// StartGaia(home)
 	},
 }
 
@@ -75,97 +84,189 @@ func init() {
 	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func GitFetchCommand(home string) {
+func GitFetchCommand(dir string) {
 	cmd := exec.Command("git", "fetch", "--all")
-	cmd.Dir = home
+	cmd.Dir = dir
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("in all caps: %q\n", out.String())
+	log.Printf("%q\n", out.String())
 }
-func GitCheckoutCommand(home string) {
+func GitCheckoutCommand(dir string) {
 	cmd := exec.Command("git", "checkout", ".")
-	cmd.Dir = home
+	cmd.Dir = dir
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("in all caps: %q\n", out.String())
+	log.Printf("Checkout unnecessary files: %q\n", out.String())
 }
 
-func GitCheckoutVersionCommand(home string) {
+func GitCheckoutVersionCommand(dir string) {
 	cmd := exec.Command("git", "checkout", "v2.0.0")
-	cmd.Dir = home
+	cmd.Dir = dir
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("in all caps: %q\n", out.String())
+	log.Printf("Checkout your prefered version: %q\n", out.String())
 }
 
-func GitCheckoutCleanFDCommand(home string) {
+func GitCheckoutCleanFDCommand(dir string) {
 	cmd := exec.Command("git", "clean", "-fd")
-	cmd.Dir = home
+	cmd.Dir = dir
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("in all caps: %q\n", out.String())
+	log.Printf("Git clean dir: %q\n", out.String())
 }
 
-func GitCheckoutCleanFXCommand(home string) {
+func GitCheckoutCleanFXCommand(dir string) {
 	cmd := exec.Command("git", "clean", "-fx")
-	cmd.Dir = home
+	cmd.Dir = dir
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("in all caps: %q\n", out.String())
+	log.Printf("Git clean files: %q\n", out.String())
 }
 
-func GoVersionCheck(home string) {
+func StopGaia(dir string) {
+	cmd := exec.Command("sudo", "systemctl", "stop", "gaiad")
+	cmd.Dir = dir
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Stop gaia: %q\n", out.String())
+}
+
+func GoVersionCheck(dir string) {
 	cmd := exec.Command("go", "version")
-	cmd.Dir = home
+	cmd.Dir = dir
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("GOVERSION: %q\n", out.String())
+	log.Printf("GOVERSION: %q\n", out.String())
 }
 
-func MakeGoModCache(home string) {
+func CheckGOPATH() {
+	path, err := exec.LookPath("go")
+	if err != nil {
+		log.Fatal("installing go is in your future/please set correct environment")
+	}
+	log.Printf("go is available at %s\n", path)
+}
+
+func MakeGoModCache(dir string) {
 	cmd := exec.Command("make", "go-mod-cache")
-	cmd.Dir = home
+	cmd.Dir = dir
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Log: %q\n", out.String())
+	log.Printf("Log: %q\n", out.String())
 }
 
-func MakeInstall(home string) {
+func MakeInstall(dir string) {
 	cmd := exec.Command("make", "install")
-	cmd.Dir = home
+	cmd.Dir = dir
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Log: %q\n", out.String())
+	log.Printf("Log: %q\n", out.String())
+}
+
+func CheckVersion(dir string) {
+	cmd := exec.Command("gaiad", "version")
+	cmd.Dir = dir
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("New binary version: %q\n", out.String())
+}
+
+func GaiaUnsafeResetAll(dir string) {
+	cmd := exec.Command("gaiad", "unsafe-reset-all")
+	cmd.Dir = dir
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Unsafe Reset ALL: %q\n", out.String())
+}
+
+func RemoveGenesis(dir string) {
+	cmd := exec.Command("rm", "genesis.json")
+	cmd.Dir = dir
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Remove Genesis: %q\n", out.String())
+}
+
+func GetGenesis(dir string) {
+	cmd := exec.Command("wget", "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json")
+	cmd.Dir = dir
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Get New Genesis: %q\n", out.String())
+}
+
+func ChecksumGenesis(dir string) {
+	cmd := exec.Command("shasum", "-a", "256", "genesis.json")
+	cmd.Dir = dir
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Checksum Genesis: %q\n", out.String())
+}
+
+func StartGaia(dir string) {
+	cmd := exec.Command("sudo", "systemctl", "start", "gaiad")
+	cmd.Dir = dir
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Start gaia: %q\n", out.String())
 }
