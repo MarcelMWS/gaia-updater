@@ -29,11 +29,10 @@ import (
 	"github.com/spf13/viper"
 	"go-gaia-updater/cmd"
 	"os"
-	"strings"
 )
 
 var cfgFile string
-var projectBase string
+var ProjectBase string
 var userLicense string
 
 // rootCmd represents the root command
@@ -61,7 +60,7 @@ func init() {
 	// rootCmd.AddCommand(rootCmd)
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cobra.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&projectBase, "projectbase", "b", "", "base project directory eg. github.com/spf13/")
+	rootCmd.PersistentFlags().StringVarP(&ProjectBase, "projectbase", "b", "", "base project directory eg. github.com/spf13/")
 	rootCmd.PersistentFlags().StringP("author", "a", "YOUR NAME", "Author name for copyright attribution")
 	rootCmd.PersistentFlags().StringVarP(&userLicense, "license", "l", "", "Name of license for the project (can provide `licensetext` in config)")
 	rootCmd.PersistentFlags().Bool("viper", true, "Use Viper for configuration")
@@ -110,31 +109,10 @@ func main() {
 	myFigure := figure.NewFigure("updater", "doom", true)
 	myFigure.Print()
 
-	var echoTimes int
-
-	var cmdTimes = &cobra.Command{
-		Use:   "times [string to echo]",
-		Short: "Echo anything to the screen more times",
-		Long: `echo things multiple times back to the user by providing
-a count and a string.`,
-		Args: cobra.MinimumNArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			for i := 0; i < echoTimes; i++ {
-				fmt.Println("Echo: " + strings.Join(args, " "))
-			}
-		},
-	}
-
-	cmdTimes.Flags().IntVarP(&echoTimes, "times", "t", 1, "times to echo the input")
-
 	var rootCmd = &cobra.Command{Use: "go-gaiad-updater"}
 	rootCmd.AddCommand(
-		cmd.CmdEcho,
-		cmd.CmdPrint,
 		cmd.VersionCmd,
-		cmd.ConfigCmd,
-		cmd.CreateCmd,
-		cmd.ServeCmd)
-	cmd.CmdEcho.AddCommand(cmdTimes)
+		cmd.StartCmd,
+		cmd.ConfigCmd)
 	rootCmd.Execute()
 }
