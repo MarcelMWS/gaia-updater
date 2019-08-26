@@ -64,7 +64,7 @@ Flags:
 
 ```
 
-### upgrade with new genesisfile, steps be executed automatically 
+### upgrade with new genesisfile, steps executed automatically 
 ```
 cd
 cd go/src/github.com/cosmos/gaia/
