@@ -1,5 +1,6 @@
 /*
-Copyright © 2019 Marcel Pohland <m.pohland@mwaysolutions.com>
+Copyright © 2019 M-Way Solutions GmbH,
+Author: Marcel Pohland <m.pohland@mwaysolutions.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
