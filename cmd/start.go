@@ -24,6 +24,7 @@ package cmd
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"fmt"
 	"github.com/spf13/cobra"
 	"io"
@@ -234,13 +235,14 @@ func GetGenesis(dir, link string) {
 }
 
 func ChecksumGenesis(dir string) {
-	cmd := exec.Command("shasum", "-a", "256", "genesis.json")
-	cmd.Dir = dir
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
+	file, err := os.Open(filepath.Join(dir, "genesis.json"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Checksum Genesis: %q\n", out.String())
+	defer file.Close()
+	h := sha256.New()
+	if _, err := io.Copy(h, file); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Checksum genesis.json: %x", h.Sum(nil))
 }

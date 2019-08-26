@@ -1,2 +1,3 @@
 .idea
-go_build_go_gaia_updater
+go-gaia-updater
+go_build
