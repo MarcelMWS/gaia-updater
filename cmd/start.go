@@ -26,7 +26,9 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/spf13/cobra"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -207,27 +209,28 @@ func GaiaUnsafeResetAll(dir string) {
 }
 
 func RemoveGenesis(dir string) {
-	cmd := exec.Command("rm", "genesis.json")
-	cmd.Dir = dir
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
+	err := os.Remove(filepath.Join(dir, "genesis.json"))
 	if err != nil {
-		log.Fatal(err)
+		if os.IsNotExist(err) {
+			println("Couldn't delete genesis.json, file does not exist")
+			return
+		} else {
+			log.Fatal(err)
+		}
 	}
-	log.Printf("Remove Genesis: %q\n", out.String())
+	log.Printf("Remove genesis.json")
 }
 
 func GetGenesis(dir, link string) {
-	cmd := exec.Command("wget", link)
-	cmd.Dir = dir
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
+	resp, err := http.Get(link)
+	defer resp.Body.Close()
+	out, err := os.Create(filepath.Join(dir, "genesis.json"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Get New Genesis: %q\n", out.String())
+	defer out.Close()
+	io.Copy(out, resp.Body)
+	log.Printf("Downloaded new genesisfile")
 }
 
 func ChecksumGenesis(dir string) {
