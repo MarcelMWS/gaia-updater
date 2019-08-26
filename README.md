@@ -15,10 +15,11 @@ go install
 man pages:
 
 ```
+
                    _         _
                   | |       | |
  _   _  _ __    __| |  __ _ | |_   ___  _ __
-| | | || '_ \  / _` | / _` || __| / _ \| '__|
+| | | || '_ \  / _| | / _| |__|_| / _ \| '__|
 | |_| || |_) || (_| || (_| || |_ |  __/| |
  \__,_|| .__/  \__,_| \__,_| \__| \___||_|
        | |
@@ -38,6 +39,7 @@ Available Commands:
 Flags:
   -h, --help   help for go-gaiad-updater
 
+Use "go-gaiad-updater [command] --help" for more information about a command.
 ```
 
 start command man pages:
