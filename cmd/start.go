@@ -53,17 +53,15 @@ var StartCmd = &cobra.Command{
 		GitCheckoutCleanFXCommand(gaiaRepoPath)
 		GitCheckoutCommand(gaiaRepoPath)
 		GitCheckoutVersionCommand(gaiaRepoPath, version)
-		// StopGaia(home)
-		GoVersionCheck(gaiaRepoPath)
+		GoVersionPrint(gaiaRepoPath)
 		CheckGOPATH()
 		MakeGoModCache(gaiaRepoPath)
 		MakeInstall(gaiaRepoPath)
-		CheckVersion(gaiaRepoPath)
+		PrintGaiadVersion(gaiaRepoPath)
 		GaiaUnsafeResetAll(home)
 		RemoveGenesis(configPath)
 		GetGenesis(configPath, link)
 		ChecksumGenesis(configPath)
-		// StartGaia(home)
 	},
 }
 
@@ -101,7 +99,7 @@ func GitCheckoutCommand(dir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Checkout unnecessary files: %q\n", out.String())
+	log.Printf("Reset current branch: %q\n", out.String())
 }
 
 func GitCheckoutVersionCommand(dir, version string) {
@@ -113,7 +111,7 @@ func GitCheckoutVersionCommand(dir, version string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Checkout your prefered version: %q\n", out.String())
+	log.Printf("Your prefered version: %q\n", out.String())
 }
 
 func GitCheckoutCleanFDCommand(dir string) {
@@ -125,7 +123,7 @@ func GitCheckoutCleanFDCommand(dir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Git clean dir: %q\n", out.String())
+	log.Printf("Clean dir: %q\n", out.String())
 }
 
 func GitCheckoutCleanFXCommand(dir string) {
@@ -137,22 +135,10 @@ func GitCheckoutCleanFXCommand(dir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Git clean files: %q\n", out.String())
+	log.Printf("Clean files: %q\n", out.String())
 }
 
-func StopGaia(dir string) {
-	cmd := exec.Command("sudo", "systemctl", "stop", "gaiad")
-	cmd.Dir = dir
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("Stop gaia: %q\n", out.String())
-}
-
-func GoVersionCheck(dir string) {
+func GoVersionPrint(dir string) {
 	cmd := exec.Command("go", "version")
 	cmd.Dir = dir
 	var out bytes.Buffer
@@ -167,7 +153,7 @@ func GoVersionCheck(dir string) {
 func CheckGOPATH() {
 	path, err := exec.LookPath("go")
 	if err != nil {
-		log.Fatal("installing go is in your future/please set correct environment")
+		log.Fatal("Updater couldn't find an installation of go. Please install go and retry")
 	}
 	log.Printf("go is available at %s\n", path)
 }
@@ -196,7 +182,7 @@ func MakeInstall(dir string) {
 	log.Printf("Log: %q\n", out.String())
 }
 
-func CheckVersion(dir string) {
+func PrintGaiadVersion(dir string) {
 	cmd := exec.Command("gaiad", "version")
 	cmd.Dir = dir
 	var out bytes.Buffer
@@ -254,16 +240,4 @@ func ChecksumGenesis(dir string) {
 		log.Fatal(err)
 	}
 	log.Printf("Checksum Genesis: %q\n", out.String())
-}
-
-func StartGaia(dir string) {
-	cmd := exec.Command("sudo", "systemctl", "start", "gaiad")
-	cmd.Dir = dir
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("Start gaia: %q\n", out.String())
 }
