@@ -1,5 +1,6 @@
 /*
-Copyright © 2019 Marcel Pohland <m.pohland@mwaysolutions.com>
+Copyright © 2019 M-Way Solutions GmbH,
+Author: Marcel Pohland <m.pohland@mwaysolutions.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +24,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/common-nighthawk/go-figure"
 	"github.com/spf13/cobra"
 	"go-gaia-updater/cmd"
 	"os"
@@ -63,8 +63,15 @@ func init() {
 }
 
 func main() {
-	myFigure := figure.NewFigure("updater", "doom", true)
-	myFigure.Print()
+	fmt.Println(`
+                   _         _
+                  | |       | |
+ _   _  _ __    __| |  __ _ | |_   ___  _ __
+| | | || '_ \  / _| |` + ` / _` + `| |__|_| / _ \| '__|
+| |_| || |_) || (_| || (_| || |_ |  __/| |
+ \__,_|| .__/  \__,_| \__,_| \__| \___||_|
+       | |
+       |_|`)
 
 	rootCmd.AddCommand(
 		cmd.VersionCmd,
