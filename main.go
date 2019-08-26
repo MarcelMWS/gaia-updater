@@ -29,37 +29,12 @@ import (
 	"os"
 )
 
-var cfgFile string
-var ProjectBase string
-var userLicense string
-
-// rootCmd represents the root command
 var rootCmd = &cobra.Command{
 	Use:   "go-gaiad-updater",
 	Short: "update cosmos-sdk-gaia repository",
 	Long: `Update and compile cosmos-sdk-gaia repository:
 
 You have to specify the git version/tag to checkout and compile the right version`,
-}
-
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-}
-func init() {
-	// rootCmd.AddCommand(rootCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// rootCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func main() {
@@ -76,6 +51,8 @@ func main() {
 	rootCmd.AddCommand(
 		cmd.VersionCmd,
 		cmd.StartCmd)
-	rootCmd.Execute()
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
-

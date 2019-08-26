@@ -25,16 +25,17 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
-var gaiaBuildPath string
+var gaiaRepoPath string
 var configPath string
 var link string
+var home string
 var version string
 
 // startCmd represents the start command
@@ -42,56 +43,42 @@ var StartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start update",
 	Long:  `start update and specify version`,
-	// Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		home, err := homedir.Dir()
-		home = home + "/"
-		configPath = home + configPath
-		log.Println("YOUR GAIA-SRC-HOME address: " + home + gaiaBuildPath)
+		log.Println("YOUR GAIA-SRC-HOME address: " + gaiaRepoPath)
 		log.Println("YOUR GAIA-CONFIG-HOME address: " + configPath)
 		log.Println("YOUR GAIA-GENESIS-LINK address: " + link)
 		log.Println("YOUR GAIA-VERSION-TO-INSTALL: " + version)
-		GitFetchCommand(home + gaiaBuildPath)
-		GitCheckoutCleanFDCommand(home + gaiaBuildPath)
-		GitCheckoutCleanFXCommand(home + gaiaBuildPath)
-		GitCheckoutCommand(home + gaiaBuildPath)
-		GitCheckoutVersionCommand(home+gaiaBuildPath, version)
+		GitFetchCommand(gaiaRepoPath)
+		GitCheckoutCleanFDCommand(gaiaRepoPath)
+		GitCheckoutCleanFXCommand(gaiaRepoPath)
+		GitCheckoutCommand(gaiaRepoPath)
+		GitCheckoutVersionCommand(gaiaRepoPath, version)
 		// StopGaia(home)
-		GoVersionCheck(home + gaiaBuildPath)
+		GoVersionCheck(gaiaRepoPath)
 		CheckGOPATH()
-		MakeGoModCache(home + gaiaBuildPath)
-		MakeInstall(home + gaiaBuildPath)
-		CheckVersion(home + gaiaBuildPath)
+		MakeGoModCache(gaiaRepoPath)
+		MakeInstall(gaiaRepoPath)
+		CheckVersion(gaiaRepoPath)
 		GaiaUnsafeResetAll(home)
 		RemoveGenesis(configPath)
 		GetGenesis(configPath, link)
 		ChecksumGenesis(configPath)
 		// StartGaia(home)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
 	},
 }
 
 func init() {
-
-	//rootCmd.AddCommand(startCmd)
-	StartCmd.Flags().StringVarP(&gaiaBuildPath, "gaiaBuildPath", "g", "go/src/github.com/cosmos/gaia/", "gaia repo location HOME +")
-	StartCmd.Flags().StringVarP(&configPath, "configPath", "c", ".gaiad/config/", "gaia config location HOME +")
+	home, err := os.UserHomeDir()
+	StartCmd.Flags().StringVarP(&gaiaRepoPath, "gaiaRepoPath", "g", filepath.Join(home, "go/src/github.com/cosmos/gaia/"), "gaia repo location HOME +")
+	StartCmd.Flags().StringVarP(&configPath, "configPath", "c", filepath.Join(home, ".gaiad/config/"), "gaia config location HOME +")
 	StartCmd.Flags().StringVarP(&link, "link", "l", "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json", "link to genesis")
 	StartCmd.Flags().StringVarP(&version, "version", "v", "", "provide correct git tag e.x. v2.0.0")
 	StartCmd.MarkFlagRequired("version")
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// startCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 func GitFetchCommand(dir string) {
@@ -280,5 +267,3 @@ func StartGaia(dir string) {
 	}
 	log.Printf("Start gaia: %q\n", out.String())
 }
-
-
