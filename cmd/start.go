@@ -70,8 +70,8 @@ var StartCmd = &cobra.Command{
 
 func init() {
 	home, err := os.UserHomeDir()
-	StartCmd.Flags().StringVarP(&gaiaRepoPath, "gaiaRepoPath", "g", filepath.Join(home, "go/src/github.com/cosmos/gaia/"), "gaia repo location HOME +")
-	StartCmd.Flags().StringVarP(&configPath, "configPath", "c", filepath.Join(home, ".gaiad/config/"), "gaia config location HOME +")
+	StartCmd.Flags().StringVarP(&gaiaRepoPath, "gaiaRepoPath", "g", filepath.Join(home, "go/src/github.com/cosmos/gaia/"), "gaia repo location")
+	StartCmd.Flags().StringVarP(&configPath, "configPath", "c", filepath.Join(home, ".gaiad/config/"), "gaia config location")
 	StartCmd.Flags().StringVarP(&link, "link", "l", "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json", "link to genesis")
 	StartCmd.Flags().StringVarP(&version, "version", "v", "", "provide correct git tag e.x. v2.0.0")
 	StartCmd.MarkFlagRequired("version")
@@ -114,7 +114,6 @@ func GitCheckoutVersionCommand(dir, version string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Your prefered version: %q\n", out.String())
 }
 
 func GitCheckoutCleanFDCommand(dir string) {
