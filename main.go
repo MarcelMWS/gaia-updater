@@ -68,7 +68,6 @@ func main() {
 
 	rootCmd.AddCommand(
 		cmd.VersionCmd,
-		cmd.StartCmd,
-		cmd.ConfigCmd)
+		cmd.StartCmd)
 	rootCmd.Execute()
 }
