@@ -31,38 +31,43 @@ import (
 	"os/exec"
 )
 
+var gaiaBuildPath string
+
 // startCmd represents the start command
 var StartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start update",
 	Long: `start update and specify version`,
+	// Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		home, err := homedir.Dir()
+		home = home + "/"
+		log.Println("Print " + gaiaBuildPath)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		gaiaPath := "/go/src/github.com/cosmos/gaia/"
-		configPath := home + "/.gaiad/config/"
+		// gaiaPath := "/go/src/github.com/cosmos/gaia/"
+		configPath := home + ".gaiad/config/"
 		link := "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json"
-		log.Println("YOUR GAIA-SRC-HOME address: " + home + gaiaPath)
+		log.Println("YOUR GAIA-SRC-HOME address: " + home + gaiaBuildPath)
 		// Version
 		log.Print("Enter your Gaia-Tag version (e.g. v2.0.0): ")
 		var version string
 		fmt.Scanln(&version)
 		log.Println(version)
 		// Install
-		GitFetchCommand(home + gaiaPath)
-		GitCheckoutCleanFDCommand(home + gaiaPath)
-		GitCheckoutCleanFXCommand(home + gaiaPath)
-		GitCheckoutCommand(home + gaiaPath)
-		GitCheckoutVersionCommand(home + gaiaPath, version)
+		GitFetchCommand(home + gaiaBuildPath)
+		GitCheckoutCleanFDCommand(home + gaiaBuildPath)
+		GitCheckoutCleanFXCommand(home + gaiaBuildPath)
+		GitCheckoutCommand(home + gaiaBuildPath)
+		GitCheckoutVersionCommand(home + gaiaBuildPath, version)
 		// StopGaia(home)
-		GoVersionCheck(home + gaiaPath)
+		GoVersionCheck(home + gaiaBuildPath)
 		CheckGOPATH()
-		MakeGoModCache(home + gaiaPath)
-		MakeInstall(home + gaiaPath)
-		CheckVersion(home + gaiaPath)
+		MakeGoModCache(home + gaiaBuildPath)
+		MakeInstall(home + gaiaBuildPath)
+		CheckVersion(home + gaiaBuildPath)
 		GaiaUnsafeResetAll(home)
 		RemoveGenesis(configPath)
 		GetGenesis(configPath, link)
@@ -74,6 +79,8 @@ var StartCmd = &cobra.Command{
 func init() {
 
 	//rootCmd.AddCommand(startCmd)
+	StartCmd.Flags().StringVarP(&gaiaBuildPath, "gaiaBuildPath", "g", "go/src/github.com/cosmos/gaia/", "gaia repo location")
+	// StartCmd.MarkFlagRequired("gaiaBuildPath")
 
 	// Here you will define your flags and configuration settings.
 
