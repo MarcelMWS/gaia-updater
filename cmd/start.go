@@ -32,23 +32,24 @@ import (
 )
 
 var gaiaBuildPath string
+var configPath string
 
 // startCmd represents the start command
 var StartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start update",
-	Long: `start update and specify version`,
+	Long:  `start update and specify version`,
 	// Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		home, err := homedir.Dir()
 		home = home + "/"
-		log.Println("Print " + gaiaBuildPath)
+		configPath = home + configPath
+		log.Println("Print " + configPath)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		// gaiaPath := "/go/src/github.com/cosmos/gaia/"
-		configPath := home + ".gaiad/config/"
+		// configPath := home + ".gaiad/config/"
 		link := "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json"
 		log.Println("YOUR GAIA-SRC-HOME address: " + home + gaiaBuildPath)
 		// Version
@@ -61,7 +62,7 @@ var StartCmd = &cobra.Command{
 		GitCheckoutCleanFDCommand(home + gaiaBuildPath)
 		GitCheckoutCleanFXCommand(home + gaiaBuildPath)
 		GitCheckoutCommand(home + gaiaBuildPath)
-		GitCheckoutVersionCommand(home + gaiaBuildPath, version)
+		GitCheckoutVersionCommand(home+gaiaBuildPath, version)
 		// StopGaia(home)
 		GoVersionCheck(home + gaiaBuildPath)
 		CheckGOPATH()
@@ -79,7 +80,8 @@ var StartCmd = &cobra.Command{
 func init() {
 
 	//rootCmd.AddCommand(startCmd)
-	StartCmd.Flags().StringVarP(&gaiaBuildPath, "gaiaBuildPath", "g", "go/src/github.com/cosmos/gaia/", "gaia repo location")
+	StartCmd.Flags().StringVarP(&gaiaBuildPath, "gaiaBuildPath", "g", "go/src/github.com/cosmos/gaia/", "gaia repo location HOME +")
+	StartCmd.Flags().StringVarP(&configPath, "configPath", "c", ".gaiad/config/", "gaia config location HOME +")
 	// StartCmd.MarkFlagRequired("gaiaBuildPath")
 
 	// Here you will define your flags and configuration settings.
