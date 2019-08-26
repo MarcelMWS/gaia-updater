@@ -48,7 +48,7 @@ start command man pages:
                    _         _
                   | |       | |
  _   _  _ __    __| |  __ _ | |_   ___  _ __
-| | | || '_ \  / _` | / _` || __| / _ \| '__|
+| | | || '_ \  / _| | / _| |__|_| / _ \| '__|
 | |_| || |_) || (_| || (_| || |_ |  __/| |
  \__,_|| .__/  \__,_| \__,_| \__| \___||_|
        | |
@@ -58,12 +58,13 @@ Usage:
   go-gaiad-updater start [flags]
 
 Flags:
-  -c, --configPath string      gaia config location HOME + (default ".gaiad/config/")
-  -g, --gaiaBuildPath string   gaia repo location HOME + (default "go/src/github.com/cosmos/gaia/")
-  -h, --help                   help for start
-  -l, --link string            link to genesis (default "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json")
-  -v, --version string         provide correct git tag e.x. v2.0.0
+  -c, --configPath string     gaia config location (default "/Users/m.pohland/.gaiad/config")
+  -g, --gaiaRepoPath string   gaia repo location (default "/Users/m.pohland/go/src/github.com/cosmos/gaia")
+  -h, --help                  help for start
+  -l, --link string           link to genesis (default "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json")
+  -v, --version string        provide correct git tag e.x. v2.0.0
 
+required flag(s) "version" not set
 ```
 
 ### upgrade with new genesisfile, steps executed automatically 
@@ -75,8 +76,6 @@ git checkout .
 git checkout v1.0.0-rc3                       #variable?
 git clean -fd
 git clean -fx
-sudo systemctl stop gaiad
-ps -ax | grep gaia                            #check gaiad killed?
 go version                                    #check minimal version
 echo $GOPATH                                  #check envs
 echo $GOBIN
@@ -84,15 +83,9 @@ make go-mod-cache                             #or set env to?: GO111MODULE=on
 make install
 gaiad version                                 #variable to check version?
 cd
-df -h                                         #check disk space
-cp -r .gaiad/data/ .gaiad/data_backup         #backup blockchain data
 gaiad unsafe-reset-all
-df -h                                       #check disk space if old database is clean/removed
 cd .gaiad/config/
-vim config.toml                               #check configs peers, pri_ids
-ls                                            #check dir
 rm genesis.json
 wget https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json #variable?
 sha256sum genesis.json                        #variable?
-sudo systemctl start gaiad                    #ensure set ulimit in systemd service file
 ```
