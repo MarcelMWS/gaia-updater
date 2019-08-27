@@ -1,16 +1,66 @@
-# go-gaia-upgrade
+# gaia-upgrade
 
-### Install go
+### Install [go](https://golang.org/doc/install)
 
 ```
 go version go1.12.7 darwin/amd64
 ``` 
+---
+(first time)
 
-in dir run:
+create go path:
+
+```
+mkdir -p $HOME/go/bin
+```
+clone cosmos-sdk gaia repository (if you haven't got it yet):
+```
+mkdir -p $GOPATH/src/github.com/cosmos
+cd $GOPATH/src/github.com/cosmos
+git clone https://github.com/cosmos/gaia
+cd cosmos-sdk
+```
+
+set environment variables (one time):
+
+```
+export GOPATH=$HOME/go
+export GOBIN=$GOPATH/bin
+export PATH=$PATH:$GOBIN
+```
+
+set environment variables (permanent):
+
+```
+echo "export GOPATH=$HOME/go" >> ~/.bash_profile
+source ~/.bash_profile
+echo "export GOBIN=$GOPATH/bin" >> ~/.bash_profile
+source ~/.bash_profile
+echo "export PATH=$PATH:$GOBIN" >> ~/.bash_profile
+source ~/.bash_profile
+```
+
+---
+
+check:
+```
+echo $GOPATH
+echo $GOBIN
+echo $PATH
+```
+
+in gaia-updater dir run:
 
 ```
 go install
 ```
+
+start:
+
+```
+gaia-updater
+```
+
 
 man pages:
 
@@ -77,8 +127,6 @@ git checkout v1.0.0-rc3                       #variable?
 git clean -fd
 git clean -fx
 go version                                    #check minimal version
-echo $GOPATH                                  #check envs
-echo $GOBIN
 make go-mod-cache                             #or set env to?: GO111MODULE=on
 make install
 gaiad version                                 #variable to check version?
