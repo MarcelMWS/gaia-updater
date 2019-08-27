@@ -223,13 +223,19 @@ func RemoveGenesis(dir string) {
 
 func GetGenesis(dir, link string) {
 	resp, err := http.Get(link)
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer resp.Body.Close()
 	out, err := os.Create(filepath.Join(dir, "genesis.json"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer out.Close()
-	io.Copy(out, resp.Body)
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Printf("Downloaded new genesisfile")
 }
 
