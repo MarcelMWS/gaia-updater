@@ -253,14 +253,11 @@ func ChecksumGenesis(dir string) {
 	if _, err := io.Copy(h, file); err != nil {
 		log.Fatal(err)
 	}
-	// prepare for bytes.Equal
-	src := []byte(shasum)
-	dst := make([]byte, hex.DecodedLen(len(src)))
-	n, err := hex.Decode(dst, src)
+	n, err := hex.DecodeString(shasum)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if bytes.Equal(h.Sum(nil),dst[:n]) {
+	if bytes.Equal(h.Sum(nil), n) {
 		log.Printf("Correct checksum genesis.json: %x", h.Sum(nil))
 	} else {
 		log.Printf("False checksum genesis.json: %x", h.Sum(nil))
