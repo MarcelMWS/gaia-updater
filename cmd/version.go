@@ -1,5 +1,6 @@
 /*
-Copyright © 2019 Marcel Pohland <m.pohland@mwaysolutions.com>
+Copyright © 2019 M-Way Solutions GmbH,
+Author: Marcel Pohland <m.pohland@mwaysolutions.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,30 +24,14 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
-// versionCmd represents the version command
 var VersionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "print version",
 	Long: `print this version`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("v0.0.1-rc1")
+		fmt.Println("v0.1.0-rc3")
 	},
-}
-
-func init() {
-	// .AddCommand(VersionCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// versionCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// versionCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -1,5 +1,6 @@
 /*
-Copyright © 2019 Marcel Pohland <m.pohland@mwaysolutions.com>
+Copyright © 2019 M-Way Solutions GmbH,
+Author: Marcel Pohland <m.pohland@mwaysolutions.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,74 +24,67 @@ package cmd
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
-var gaiaBuildPath string
+var gaiaRepoPath string
 var configPath string
 var link string
+var home string
 var version string
+var shasum string
 
 // startCmd represents the start command
 var StartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start update",
 	Long:  `start update and specify version`,
-	// Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		home, err := homedir.Dir()
-		home = home + "/"
-		configPath = home + configPath
-		log.Println("YOUR GAIA-SRC-HOME address: " + home + gaiaBuildPath)
+		log.Println("YOUR GAIA-SRC-HOME address: " + gaiaRepoPath)
 		log.Println("YOUR GAIA-CONFIG-HOME address: " + configPath)
 		log.Println("YOUR GAIA-GENESIS-LINK address: " + link)
 		log.Println("YOUR GAIA-VERSION-TO-INSTALL: " + version)
-		GitFetchCommand(home + gaiaBuildPath)
-		GitCheckoutCleanFDCommand(home + gaiaBuildPath)
-		GitCheckoutCleanFXCommand(home + gaiaBuildPath)
-		GitCheckoutCommand(home + gaiaBuildPath)
-		GitCheckoutVersionCommand(home+gaiaBuildPath, version)
-		// StopGaia(home)
-		GoVersionCheck(home + gaiaBuildPath)
+		GitFetchCommand(gaiaRepoPath)
+		GitCheckoutCleanFDCommand(gaiaRepoPath)
+		GitCheckoutCleanFXCommand(gaiaRepoPath)
+		GitCheckoutCommand(gaiaRepoPath)
+		GitCheckoutVersionCommand(gaiaRepoPath, version)
+		GoVersionPrint(gaiaRepoPath)
 		CheckGOPATH()
-		MakeGoModCache(home + gaiaBuildPath)
-		MakeInstall(home + gaiaBuildPath)
-		CheckVersion(home + gaiaBuildPath)
+		MakeGoModCache(gaiaRepoPath)
+		MakeInstall(gaiaRepoPath)
+		PrintGaiadVersion(gaiaRepoPath)
 		GaiaUnsafeResetAll(home)
 		RemoveGenesis(configPath)
 		GetGenesis(configPath, link)
-		ChecksumGenesis(configPath)
-		// StartGaia(home)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		if shasum != "" {
+			ChecksumGenesis(configPath)
 		}
 	},
 }
 
 func init() {
-
-	//rootCmd.AddCommand(startCmd)
-	StartCmd.Flags().StringVarP(&gaiaBuildPath, "gaiaBuildPath", "g", "go/src/github.com/cosmos/gaia/", "gaia repo location HOME +")
-	StartCmd.Flags().StringVarP(&configPath, "configPath", "c", ".gaiad/config/", "gaia config location HOME +")
+	home, err := os.UserHomeDir()
+	StartCmd.Flags().StringVarP(&gaiaRepoPath, "gaiaRepoPath", "g", filepath.Join(home, "go/src/github.com/cosmos/gaia/"), "gaia repo location")
+	StartCmd.Flags().StringVarP(&configPath, "configPath", "c", filepath.Join(home, ".gaiad/config/"), "gaia config location")
 	StartCmd.Flags().StringVarP(&link, "link", "l", "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json", "link to genesis")
+	StartCmd.Flags().StringVarP(&shasum, "shasum", "s", "", "provide sha256sum of genesis.json file")
 	StartCmd.Flags().StringVarP(&version, "version", "v", "", "provide correct git tag e.x. v2.0.0")
 	StartCmd.MarkFlagRequired("version")
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// startCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 func GitFetchCommand(dir string) {
@@ -113,7 +107,7 @@ func GitCheckoutCommand(dir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Checkout unnecessary files: %q\n", out.String())
+	log.Printf("Reset current branch: %q\n", out.String())
 }
 
 func GitCheckoutVersionCommand(dir, version string) {
@@ -125,7 +119,6 @@ func GitCheckoutVersionCommand(dir, version string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Checkout your prefered version: %q\n", out.String())
 }
 
 func GitCheckoutCleanFDCommand(dir string) {
@@ -137,7 +130,7 @@ func GitCheckoutCleanFDCommand(dir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Git clean dir: %q\n", out.String())
+	log.Printf("Clean dir: %q\n", out.String())
 }
 
 func GitCheckoutCleanFXCommand(dir string) {
@@ -149,22 +142,10 @@ func GitCheckoutCleanFXCommand(dir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Git clean files: %q\n", out.String())
+	log.Printf("Clean files: %q\n", out.String())
 }
 
-func StopGaia(dir string) {
-	cmd := exec.Command("sudo", "systemctl", "stop", "gaiad")
-	cmd.Dir = dir
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("Stop gaia: %q\n", out.String())
-}
-
-func GoVersionCheck(dir string) {
+func GoVersionPrint(dir string) {
 	cmd := exec.Command("go", "version")
 	cmd.Dir = dir
 	var out bytes.Buffer
@@ -179,7 +160,7 @@ func GoVersionCheck(dir string) {
 func CheckGOPATH() {
 	path, err := exec.LookPath("go")
 	if err != nil {
-		log.Fatal("installing go is in your future/please set correct environment")
+		log.Fatal("Updater couldn't find an installation of go. Please install go and retry")
 	}
 	log.Printf("go is available at %s\n", path)
 }
@@ -208,7 +189,7 @@ func MakeInstall(dir string) {
 	log.Printf("Log: %q\n", out.String())
 }
 
-func CheckVersion(dir string) {
+func PrintGaiadVersion(dir string) {
 	cmd := exec.Command("gaiad", "version")
 	cmd.Dir = dir
 	var out bytes.Buffer
@@ -233,49 +214,53 @@ func GaiaUnsafeResetAll(dir string) {
 }
 
 func RemoveGenesis(dir string) {
-	cmd := exec.Command("rm", "genesis.json")
-	cmd.Dir = dir
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
+	err := os.Remove(filepath.Join(dir, "genesis.json"))
 	if err != nil {
-		log.Fatal(err)
+		if os.IsNotExist(err) {
+			println("Couldn't delete genesis.json, file does not exist")
+			return
+		} else {
+			log.Fatal(err)
+		}
 	}
-	log.Printf("Remove Genesis: %q\n", out.String())
+	log.Printf("Remove genesis.json")
 }
 
 func GetGenesis(dir, link string) {
-	cmd := exec.Command("wget", link)
-	cmd.Dir = dir
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
+	resp, err := http.Get(link)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Get New Genesis: %q\n", out.String())
+	defer resp.Body.Close()
+	out, err := os.Create(filepath.Join(dir, "genesis.json"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer out.Close()
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Downloaded new genesisfile")
 }
 
 func ChecksumGenesis(dir string) {
-	cmd := exec.Command("shasum", "-a", "256", "genesis.json")
-	cmd.Dir = dir
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
+	file, err := os.Open(filepath.Join(dir, "genesis.json"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Checksum Genesis: %q\n", out.String())
-}
-
-func StartGaia(dir string) {
-	cmd := exec.Command("sudo", "systemctl", "start", "gaiad")
-	cmd.Dir = dir
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
+	defer file.Close()
+	h := sha256.New()
+	if _, err := io.Copy(h, file); err != nil {
+		log.Fatal(err)
+	}
+	n, err := hex.DecodeString(shasum)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Start gaia: %q\n", out.String())
+	if bytes.Equal(h.Sum(nil), n) {
+		log.Printf("Correct checksum genesis.json: %x", h.Sum(nil))
+	} else {
+		log.Fatalln("False checksum genesis.json: ", hex.EncodeToString(h.Sum(nil)))
+	}
 }
