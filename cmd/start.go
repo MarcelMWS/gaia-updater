@@ -66,7 +66,9 @@ var StartCmd = &cobra.Command{
 		GaiaUnsafeResetAll(home)
 		RemoveGenesis(configPath)
 		GetGenesis(configPath, link)
-		ChecksumGenesis(configPath)
+		if shasum != "" {
+			ChecksumGenesis(configPath)
+		}
 	},
 }
 
@@ -75,10 +77,9 @@ func init() {
 	StartCmd.Flags().StringVarP(&gaiaRepoPath, "gaiaRepoPath", "g", filepath.Join(home, "go/src/github.com/cosmos/gaia/"), "gaia repo location")
 	StartCmd.Flags().StringVarP(&configPath, "configPath", "c", filepath.Join(home, ".gaiad/config/"), "gaia config location")
 	StartCmd.Flags().StringVarP(&link, "link", "l", "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json", "link to genesis")
+	StartCmd.Flags().StringVarP(&shasum, "shasum", "s", "", "provide sha256sum of genesis.json file")
 	StartCmd.Flags().StringVarP(&version, "version", "v", "", "provide correct git tag e.x. v2.0.0")
 	StartCmd.MarkFlagRequired("version")
-	StartCmd.Flags().StringVarP(&shasum, "shasum", "s", "", "provide sha256sum of genesis.json file")
-	StartCmd.MarkFlagRequired("shasum")
 
 	if err != nil {
 		fmt.Println(err)
@@ -260,6 +261,6 @@ func ChecksumGenesis(dir string) {
 	if bytes.Equal(h.Sum(nil), n) {
 		log.Printf("Correct checksum genesis.json: %x", h.Sum(nil))
 	} else {
-		log.Printf("False checksum genesis.json: %x", h.Sum(nil))
+		log.Fatalln("False checksum genesis.json: ", hex.EncodeToString(h.Sum(nil)))
 	}
 }
