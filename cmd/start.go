@@ -25,6 +25,7 @@ package cmd
 import (
 	"bytes"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"github.com/spf13/cobra"
 	"io"
@@ -40,6 +41,7 @@ var configPath string
 var link string
 var home string
 var version string
+var shasum string
 
 // startCmd represents the start command
 var StartCmd = &cobra.Command{
@@ -75,6 +77,8 @@ func init() {
 	StartCmd.Flags().StringVarP(&link, "link", "l", "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json", "link to genesis")
 	StartCmd.Flags().StringVarP(&version, "version", "v", "", "provide correct git tag e.x. v2.0.0")
 	StartCmd.MarkFlagRequired("version")
+	StartCmd.Flags().StringVarP(&shasum, "shasum", "s", "", "provide sha256sum of genesis.json file")
+	StartCmd.MarkFlagRequired("shasum")
 
 	if err != nil {
 		fmt.Println(err)
@@ -249,5 +253,16 @@ func ChecksumGenesis(dir string) {
 	if _, err := io.Copy(h, file); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Checksum genesis.json: %x", h.Sum(nil))
+	// prepare for bytes.Equal
+	src := []byte(shasum)
+	dst := make([]byte, hex.DecodedLen(len(src)))
+	n, err := hex.Decode(dst, src)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if bytes.Equal(h.Sum(nil),dst[:n]) {
+		log.Printf("Correct checksum genesis.json: %x", h.Sum(nil))
+	} else {
+		log.Printf("False checksum genesis.json: %x", h.Sum(nil))
+	}
 }
