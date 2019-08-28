@@ -25,12 +25,12 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"go-gaia-updater/cmd"
+	"gaia-updater/cmd"
 	"os"
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "go-gaiad-updater",
+	Use:   "gaiad-updater",
 	Short: "update cosmos-sdk-gaia repository",
 	Long: `Update and compile cosmos-sdk-gaia repository:
 
