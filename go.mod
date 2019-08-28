@@ -1,4 +1,4 @@
-module go-gaia-updater
+module gaia-updater
 
 go 1.12
 
