@@ -108,8 +108,8 @@ Usage:
   go-gaiad-updater start [flags]
 
 Flags:
-  -c, --configPath string     gaia config location (default "/Users/m.pohland/.gaiad/config")
-  -g, --gaiaRepoPath string   gaia repo location (default "/Users/m.pohland/go/src/github.com/cosmos/gaia")
+  -c, --configPath string     gaia config location (default "/Users/***/.gaiad/config")
+  -g, --gaiaRepoPath string   gaia repo location (default "/Users/***/go/src/github.com/cosmos/gaia")
   -h, --help                  help for start
   -l, --link string           link to genesis (default "https://raw.githubusercontent.com/cosmos/testnets/master/gaia-13k/genesis.json")
   -v, --version string        provide correct git tag e.x. v2.0.0
